@@ -1,0 +1,15 @@
+{
+  "pipeline": {
+    "name": "preprocess"
+  },
+  "transform": {
+    "image": "hypnosapos/taxi_chicago:latest",
+    "cmd": ["./preprocess_pachyderm.sh"]
+  },
+  "input": {
+      "atom": {
+        "repo": "taxi",
+        "glob": "/*"
+      }
+  }
+}

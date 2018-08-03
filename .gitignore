@@ -1,0 +1,5 @@
+#Ignore metafiles
+.*
+!.gitignore
+!.circleci
+!.dockerignore
