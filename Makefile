@@ -94,14 +94,12 @@ gke-delete-cluster: ## Delete a kubernetes cluster on GKE.
 	          && gcloud container --project $(GCP_PROJECT_ID) clusters delete $(GKE_CLUSTER_NAME) \
 	          --zone $(GCP_ZONE) --quiet"
 
-.PHONY: pachyderm-set-lbs
-pachyderm-set-lbs: ## Configure pachyderm load balancer for dashboard and pachyderm service.
+.PHONY: pachyderm-set-lb
+pachyderm-set-lb: ## Configure pachyderm load balancer.
 	@docker exec gke-bastion-pachy \
-	   sh -c "kubectl patch svc/pachd --patch '{ \"spec\" : { \"type\": \"LoadBalancer\"}}' && \
-	          kubectl patch svc/dash --patch '{ \"spec\" : { \"type\": \"LoadBalancer\"}}'
+	   sh -c "kubectl patch svc/pachd --patch '{ \"spec\" : { \"type\": \"LoadBalancer\"}}'"
 
-.PHONY: pachyderm-get-lbs
-pachyderm-get-lbs: ## Get pachyderm load balancer ips.
+.PHONY: pachyderm-get-lb
+pachyderm-get-lb: ## Get pachyderm load balancer ip.
 	@docker exec gke-bastion-pachy \
-	   sh -c 'for svc in dash pachd; \
-	          do echo "$$svc --> $$(kubectl get svc $$svc -o jsonpath="'"{.status.loadBalancer.ingress[0].ip}"'")"; done'
+	   sh -c "echo \"type: export ADDRESS=$$(kubectl get svc pachd -o jsonpath='{.status.loadBalancer.ingress[0].ip}'):650\""
