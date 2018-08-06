@@ -30,6 +30,12 @@ endif
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
+.PHONY: pachyderm-client
+pachyderm-client: ## Install pachyderm client
+	curl -o /tmp/pachctl.tar.gz -L https://github.com/pachyderm/pachyderm/releases/download/v1.7.3/pachctl_$(VERSION_PACHYDERM)_linux_amd64.tar.gz \
+	  && tar -xvf /tmp/pachctl.tar.gz -C /tmp \
+	  && sudo cp /tmp/pachctl_$(VERSION_PACHYDERM)_linux_amd64/pachctl /usr/local/bin
+
 .PHONY: gke-bastion
 gke-bastion: ## Run a gke-bastion container.
 	@docker run -it -d --name gke-bastion-pachy \
@@ -55,7 +61,7 @@ gke-create-cluster: ## Create a kubernetes cluster on GKE.
 	@docker exec gke-bastion-pachy \
 	   sh -c "gcloud container clusters get-credentials $(GKE_CLUSTER_NAME) --zone "$(GCP_ZONE)" --project $(GCP_PROJECT_ID) \
 	          && kubectl config set-credentials gke_$(GCP_PROJECT_ID)_$(GCP_ZONE)_$(GKE_CLUSTER_NAME) --username=admin \
-	          --password=$$(gcloud container clusters describe $(GKE_CLUSTER_NAME) | grep password | awk '{print $$2}')"
+	          --password=$$(gcloud container clusters describe $(GKE_CLUSTER_NAME) --zone $(GCP_ZONE) | grep password | awk '{print $$2}')"
 
 .PHONY: preconfigure-bucket
 preconfigure-bucket: ##
@@ -75,7 +81,7 @@ deploy-pachyderm: preconfigure-bucket install-cli ## Deploy pachyderm on cluster
 	@docker exec gke-bastion-pachy \
 	   sh -c "pachctl deploy google $(BUCKET_NAME) $(STORAGE_SIZE) --dynamic-etcd-nodes=1"
 
-.PHONY: pachyderm-ui
+.PHONY: pachyderm-ui ## TODO: command client require an argument to set the bind host
 pachyderm-ui: ## Launch pachyderm dashboard through the proxy.
 	@docker exec gke-bastion-pachy \
 	   sh -c "pachctl port-forward &"
@@ -87,3 +93,15 @@ gke-delete-cluster: ## Delete a kubernetes cluster on GKE.
 	   sh -c "gcloud config set project $(GCP_PROJECT_ID) \
 	          && gcloud container --project $(GCP_PROJECT_ID) clusters delete $(GKE_CLUSTER_NAME) \
 	          --zone $(GCP_ZONE) --quiet"
+
+.PHONY: pachyderm-set-lbs
+pachyderm-set-lbs: ## Configure pachyderm load balancer for dashboard and pachyderm service.
+	@docker exec gke-bastion-pachy \
+	   sh -c "kubectl patch svc/pachd --patch '{ \"spec\" : { \"type\": \"LoadBalancer\"}}' && \
+	          kubectl patch svc/dash --patch '{ \"spec\" : { \"type\": \"LoadBalancer\"}}'
+
+.PHONY: pachyderm-get-lbs
+pachyderm-get-lbs: ## Get pachyderm load balancer ips.
+	@docker exec gke-bastion-pachy \
+	   sh -c 'for svc in dash pachd; \
+	          do echo "$$svc --> $$(kubectl get svc $$svc -o jsonpath="'"{.status.loadBalancer.ingress[0].ip}"'")"; done'
