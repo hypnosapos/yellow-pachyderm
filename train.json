@@ -1,0 +1,16 @@
+{
+  "pipeline": {
+    "name": "train"
+  },
+  "transform": {
+    "image": "hypnosapos/taxi_chicago:0.5",
+    "cmd": [ "bash" ],
+    "stdin": [ "./train_pachyderm.sh" ]
+  },
+  "input": {
+      "atom": {
+        "repo": "preprocess",
+        "glob": "/"
+      }
+  }
+}
