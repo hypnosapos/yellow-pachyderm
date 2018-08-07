@@ -3,14 +3,14 @@
     "name": "preprocess"
   },
   "transform": {
-    "image": "hypnosapos/taxi_chicago:latest",
+    "image": "hypnosapos/taxi_chicago:0.3",
     "cmd": [ "bash" ],
-    "stdin": ["./preprocess_pachyderm.sh"]
+    "stdin": [ "./preprocess_pachyderm.sh" ]
   },
   "input": {
       "atom": {
         "repo": "taxi",
-        "glob": "/*"
+        "glob": "/"
       }
   }
 }
