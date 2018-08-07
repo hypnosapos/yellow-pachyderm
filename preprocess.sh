@@ -18,18 +18,18 @@ echo Starting local TFT preprocessing...
 
 # Preprocess the eval files
 echo Preprocessing eval data...
-rm -R -f /pfs/taxi/eval/local_chicago_taxi_output
+rm -R -f /pfs/out/eval/local_chicago_taxi_output
 python preprocess.py \
-  --output_dir /pfs/taxi/eval/local_chicago_taxi_output \
+  --output_dir /pfs/out/eval/local_chicago_taxi_output \
   --outfile_prefix eval_transformed \
   --input /pfs/taxi/eval/data.csv \
   --runner DirectRunner
 
 # Preprocess the train files, keeping the transform functions
 echo Preprocessing train data...
-rm -R -f /pfs/taxi/train/local_chicago_taxi_output
+rm -R -f /pfs/out/train/local_chicago_taxi_output
 python preprocess.py \
-  --output_dir /pfs/taxi/train/local_chicago_taxi_output \
+  --output_dir /pfs/out/train/local_chicago_taxi_output \
   --outfile_prefix train_transformed \
   --input /pfs/taxi/train/data.csv \
   --runner DirectRunner
