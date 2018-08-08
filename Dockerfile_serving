@@ -1,0 +1,5 @@
+ARG GCLOUD_IMAGE_TAG="206.0.0-alpine"
+
+FROM google/cloud-sdk:${GCLOUD_IMAGE_TAG}
+
+ADD ./serving.sh .

@@ -1,0 +1,16 @@
+{
+  "pipeline": {
+    "name": "serving"
+  },
+  "transform": {
+    "image": "hypnosapos/taxi_chicago:0.13",
+    "cmd": [ "bash" ],
+    "stdin": [ "./serving.sh" ]
+  },
+  "input": {
+      "atom": {
+        "repo": "train",
+        "glob": "/"
+      }
+  }
+}
