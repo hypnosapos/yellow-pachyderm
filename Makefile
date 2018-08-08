@@ -6,7 +6,7 @@ ROOT_PATH := $(PWD)/$({0%/*})
 
 CONTAINER_NAME      ?= gke-bastion
 
-IMAGE_VERSION       ?= 0.4
+IMAGE_VERSION       ?= 0.11
 
 GCLOUD_IMAGE_TAG    ?= 206.0.0-alpine
 GCP_CREDENTIALS     ?= $$HOME/Git/keypairs/gce/gcp.json
@@ -141,3 +141,11 @@ docker-publish: ## Build and publish docker image for preprocessing, train, etc
 	docker build -f Dockerfile -t hypnosapos/taxi_chicago:$(IMAGE_VERSION) $(ROOT_PATH)
 	docker push hypnosapos/taxi_chicago:$(IMAGE_VERSION)
 
+.PHONY: basic-example
+basic-example: ## Launch basic example on pachyderm
+	pachctl create-repo taxi
+	pachctl put-file -r taxi master -f gs://taxi_chicago/train
+	pachctl put-file -r taxi master -f gs://taxi_chicago/eval
+	pachctl create-pipeline -f preprocess.json
+	pachctl create-pipeline -f train.json
+	pachctl create-pipeline -f serving.json
