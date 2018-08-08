@@ -8,5 +8,5 @@ WORKDIR model-analysis/examples/chicago_taxi
 
 RUN pip install -r requirements.txt
 
-COPY ./preprocess.sh ./preprocess_pachyderm.sh
-COPY ./train.sh ./train_pachyderm.sh
+COPY ./preprocess.sh .
+COPY ./train.sh .

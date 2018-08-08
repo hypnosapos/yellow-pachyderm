@@ -3,9 +3,9 @@
     "name": "train"
   },
   "transform": {
-    "image": "hypnosapos/taxi_chicago:0.10",
+    "image": "hypnosapos/taxi_chicago:0.11",
     "cmd": [ "bash" ],
-    "stdin": [ "./train_pachyderm.sh" ]
+    "stdin": [ "./train.sh" ]
   },
   "input": {
       "atom": {
