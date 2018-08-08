@@ -100,10 +100,15 @@ portforward-kubeflow: ## Port forwarding kubeflow ports.
 	@docker exec $(CONTAINER_NAME) \
 	   sh -c 'kubectl -n kubeflow port-forward $$(kubectl -n kubeflow get pods --selector=app=tf-hub | awk "'"{print $1}"'" | tail -1) 8000:8000 2>&1 >/dev/null &'
 
-.PHONY: deploy-pachyderm
-deploy-pachyderm: ## Deploy pachyderm on cluster using ksonnet.
+.PHONY: preconfigure-bucket
+preconfigure-bucket: ##
 	@docker exec $(CONTAINER_NAME) \
-	   sh -c 'BUCKET_NAME=$(BUCKET_NAME) VERSION_KUBEFLOW=$(VERSION_KUBEFLOW) /tmp/pachyderm.sh'
+	   sh -c 'gsutil ls gs://pachyderm-poc > /dev/null 2>&1 || gsutil mb gs://$(BUCKET_NAME)'
+
+.PHONY: deploy-pachyderm
+deploy-pachyderm: preconfigure-bucket install-pachy-cli ## Deploy pachyderm on cluster using its cli.
+	@docker exec $(CONTAINER_NAME) \
+	   sh -c "pachctl deploy google $(BUCKET_NAME) $(STORAGE_SIZE) --dynamic-etcd-nodes=1"
 
 .PHONY: gke-delete-cluster
 gke-delete-cluster: ## Delete a kubernetes cluster on GKE.
@@ -133,6 +138,6 @@ pachyderm-ui: ## Launch pachyderm dashboard
 
 .PHONY: docker-publish
 docker-publish: ## Build and publish docker image for preprocessing, train, etc
-	docker build -f Dockerfile_preprocess -t hypnosapos/taxi_chicago:$(IMAGE_VERSION) $(ROOT_PATH)
+	docker build -f Dockerfile -t hypnosapos/taxi_chicago:$(IMAGE_VERSION) $(ROOT_PATH)
 	docker push hypnosapos/taxi_chicago:$(IMAGE_VERSION)
 

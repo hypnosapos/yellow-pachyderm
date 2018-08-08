@@ -17,7 +17,9 @@ set -u
 echo Starting local training...
 
 # Output: dir for our raw=>transform function
-WORKING_DIR=/pfs/preprocess/train/local_chicago_taxi_output
+WORKING_DIR=/pfs/out/train/local_chicago_taxi_output
+
+cp -r /pfs/preprocess/train /pfs/out/train
 
 # Output: dir for both the serving model and eval_model which will go into tfma
 # evaluation

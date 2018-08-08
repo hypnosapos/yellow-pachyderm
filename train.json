@@ -3,7 +3,7 @@
     "name": "train"
   },
   "transform": {
-    "image": "hypnosapos/taxi_chicago:0.5",
+    "image": "hypnosapos/taxi_chicago:0.10",
     "cmd": [ "bash" ],
     "stdin": [ "./train_pachyderm.sh" ]
   },
@@ -12,5 +12,8 @@
         "repo": "preprocess",
         "glob": "/"
       }
+  },
+  "egress": {
+    "URL": "gs://taxi_chicago/output/"
   }
 }
