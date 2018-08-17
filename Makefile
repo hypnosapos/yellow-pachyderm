@@ -13,15 +13,15 @@ GCP_CREDENTIALS     ?= $$HOME/Git/keypairs/gce/gcp.json
 GCP_ZONE            ?= europe-west1-b
 GCP_PROJECT_ID      ?= bbva-ialabs-poc
 
-GKE_CLUSTER_VERSION ?= 1.10.5-gke.3
+GKE_CLUSTER_VERSION ?= 1.10.6-gke.1
 GKE_CLUSTER_NAME    ?= kspachy
-GKE_NUM_NODES       ?= 4
+GKE_NUM_NODES       ?= 2
 GKE_MACHINE_TYPE    ?= n1-standard-8
 
 STORAGE_SIZE        ?= 10
 BUCKET_NAME         ?= pachyderm-poc
 
-VERSION_PACHYDERM   ?= 1.7.4
+VERSION_PACHYDERM   ?= 1.7.5
 VERSION_KUBEFLOW    ?= 0.2.2
 
 UNAME := $(shell uname -s)
