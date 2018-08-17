@@ -3,9 +3,9 @@
     "name": "serving"
   },
   "transform": {
-    "image": "hypnosapos/taxi_chicago:0.13",
+    "image": "tensorflow/serving",
     "cmd": [ "bash" ],
-    "stdin": [ "./serving.sh" ]
+    "stdin": [ "/usr/bin/tensorflow_model_server --server=0.0.0.0 --port=9000 --model_base_path=/pfs/train/train/local_chicago_taxi_output/serving_model_dir/export/chicago-taxi --model_name=chicago_taxi" ]
   },
   "input": {
       "atom": {
