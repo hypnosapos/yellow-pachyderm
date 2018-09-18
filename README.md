@@ -1,5 +1,7 @@
 # Yellow Pachyderm
 
+![We love open source](https://badges.frapsoft.com/os/v1/open-source.svg?v=103 "We love open source")
+
 This project is a proof of concept about well known **Chicago taxis** dataset.
 
 The goal is to reproduce the [example of tensorflow](https://github.com/tensorflow/model-analysis/tree/master/examples/chicago_taxi) by using [pachyderm](https://github.com/pachyderm/pachyderm)
@@ -24,25 +26,39 @@ make -C k8s-gke gke-bastion gke-create-cluster gke-ui-login-skip gke-proxy gke-u
 ```bash
 export STORAGE_SIZE=10
 export BUCKET_NAME=pachyderm-poc
-make preconfigure-bucket install-pachy-cli deploy-pachy
+make preconfigure-bucket pachy-install-cli pachy-deploy
 ```
 
-## Connect to pachd externally
+## Build and push docker container \[optional\]
 
 ```bash
-make pachyderm-set-lb
-# wait for public ip
-make pachyderm-get-lb
+make docker-publish
 ```
 
-Check pachd is reachable:
+Pre-built images are [available here](https://hub.docker.com/r/hypnosapos/taxi_chicago/tags/).
+
+## Launch pipelines
+
 ```bash
-export ADDRESS=<address>
-pachctl version
+make pachy-proxy pachy-pipelines
 ```
 
-## Example
-
+Follow job statuses by:
 ```bash
-make 
+docker exec -it gke-bastion bash -c "watch pachctl list-jobs"
+```
+
+## Deploy tf-serving and check CD of models
+
+If statuses of jobs are 'success' then model resources should be at GCS, in the egress URL specified in file `train.json`
+ (by default: gs://taxi_chicago/output/)
+
+Now, let's deploy tfserving to serve models:
+```bash
+make gcp-secret tfserving-deploy
+```
+
+To get predictions:
+```bash
+make tfserving-client
 ```

@@ -3,7 +3,7 @@
     "name": "preprocess"
   },
   "transform": {
-    "image": "hypnosapos/taxi_chicago:0.1",
+    "image": "hypnosapos/taxi_chicago:latest",
     "cmd": [ "bash" ],
     "stdin": [ "./preprocess.sh" ]
   },

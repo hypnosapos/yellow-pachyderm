@@ -1,0 +1,18 @@
+## Launch a client request to TFServing endpoint
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: tfserving-client
+spec:
+  backoffLimit: 5
+  activeDeadlineSeconds: 1000
+  template:
+    spec:
+      containers:
+      - name: tfserving-client
+        image: hypnosapos/taxi_chicago
+        command: ["/bin/bash", "-c"]
+        args:
+        - "python chicago_taxi_client.py --num_examples=1 --examples_file=./data/train/data.csv --server=tfserving:9000"
+      restartPolicy: Never

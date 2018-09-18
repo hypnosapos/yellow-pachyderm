@@ -1,0 +1,72 @@
+## TFServing deployment on kubernetes
+# https://www.tensorflow.org/serving/serving_inception#create_kubernetes_deployment_and_service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tfserving
+  labels:
+    app: tfserving
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+spec:
+  ports:
+  - port: 8500
+    name: tfserving-http
+  - port: 8501
+    name: tfserving-grpc
+  clusterIP: None
+  selector:
+    app: tfserving
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tfserving-deployment
+  labels:
+    app: tfserving
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tfserving
+  template:
+    metadata:
+      labels:
+        app: tfserving
+    spec:
+      containers:
+      - name: tfserving
+        image: tensorflow/serving
+        command: [ "/bin/bash", "-c" ]
+        args:
+        - "/usr/bin/tensorflow_model_server --server=0.0.0.0 --port=9000 --model_base_path=$MODEL_BASE_PATH --model_name=$MODEL_NAME"
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: "/tmp/gcp/gcp.json"
+        - name: MODEL_BASE_PATH
+          value: "gs://taxi_chicago/output/train/local_chicago_taxi_output/serving_model_dir/export/chicago-taxi"
+        - name: MODEL_NAME
+          value: "chicago_taxi"
+        volumeMounts:
+        - name: gcloud-creds
+          mountPath: /tmp/gcp
+          readOnly: true
+        - name: certs
+          mountPath: "/etc/ssl/certs"
+      initContainers:
+      - name: metadata-cert
+        image: tensorflow/serving
+        command: ["bash", "-c"]
+        args:
+        - "apt-get update && apt-get install -y curl && curl metadata"
+        volumeMounts:
+        - name: certs
+          mountPath: "/etc/ssl/certs"
+      dnsPolicy: Default
+      volumes:
+      - name: certs
+        emptyDir: {}
+      - name: gcloud-creds
+        secret:
+          secretName: gcloud-creds
