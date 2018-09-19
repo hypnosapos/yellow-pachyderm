@@ -17,10 +17,12 @@ TAXI_VERSION       ?= 0.9.0
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-.PHONY: preconfigure-bucket
-preconfigure-bucket: ## Preconfigure GCS bucket
+.PHONY: preconfigure-buckets
+preconfigure-buckets: ## Preconfigure GCS buckets
 	@docker exec $(CONTAINER_NAME) \
 	   sh -c 'gsutil ls gs://$(BUCKET_NAME) > /dev/null 2>&1 || gsutil mb gs://$(BUCKET_NAME)'
+	@docker exec $(CONTAINER_NAME) \
+	   sh -c 'gsutil ls gs://taxi_chicago > /dev/null 2>&1 || gsutil mb gs://taxi_chicago'
 
 .PHONY: pachy-install-cli
 pachy-install-cli: ## Install pachctl client.
