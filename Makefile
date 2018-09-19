@@ -11,6 +11,7 @@ STORAGE_SIZE        ?= 10
 BUCKET_NAME         ?= pachyderm-poc
 
 VERSION_PACHYDERM   ?= 1.7.7
+TAXI_VERSION       ?= 0.9.0
 
 .PHONY: help
 help: ## Show this help
@@ -44,7 +45,8 @@ pachy-deploy-dash: ## Just install pachyderm dashboard.
 pachy-set-lb: ## Configure pachyderm load balancer to pget a public access.
 	@docker exec $(CONTAINER_NAME) \
 	   sh -c "kubectl patch svc/pachd --patch '{ \"spec\" : { \"type\": \"LoadBalancer\"}}'"
-	## type: export ADDRESS=$(make pachy-get-lb):650, to get access to pachd externally
+
+## type: export ADDRESS=$(make pachy-get-lb):650, to get access to pachd externally
 .PHONY: pachy-get-lb
 pachy-get-lb: ## Get pachyderm public load balancer ip.
 	@docker exec $(CONTAINER_NAME) \
@@ -59,7 +61,7 @@ pachy-proxy: ## Launch pachyderm proxy
 docker-publish: ## Build and publish docker image to be used in pachyderm pipelines
 	@$(foreach image_version,\
 	    $(IMAGE_VERSIONS),\
-	    docker build -f Dockerfile -t hypnosapos/taxi_chicago:$(image_version) . && \
+	    docker build -f Dockerfile --build-arg "TAXI_VERSION=$(TAXI_VERSION)" -t hypnosapos/taxi_chicago:$(image_version) . && \
 	    docker push hypnosapos/taxi_chicago:$(image_version);)
 
 
@@ -67,10 +69,12 @@ docker-publish: ## Build and publish docker image to be used in pachyderm pipeli
 pachy-pipelines: ## Launch chicago taxis pipelines on pachyderm
 	@docker cp preprocess.json $(CONTAINER_NAME):/root/
 	@docker cp train.json $(CONTAINER_NAME):/root/
-	@docker exec $(CONTAINER_NAME) \
+	docker exec $(CONTAINER_NAME) \
 	   sh -c "pachctl create-repo taxi \
-	          && pachctl put-file -r taxi master -f gs://taxi_chicago/train \
-	          && pachctl put-file -r taxi master -f gs://taxi_chicago/eval \
+	          && curl --create-dirs -soL /train/data.csv https://raw.githubusercontent.com/tensorflow/model-analysis/v$(TAXI_VERSION)/examples/chicago_taxi/data/train/data.csv \
+	          && curl --create-dirs -soL /eval/data.csv https://raw.githubusercontent.com/tensorflow/model-analysis/v$(TAXI_VERSION)/examples/chicago_taxi/data/eval/data.csv \
+	          && pachctl put-file taxi master -f /train/data.csv \
+	          && pachctl put-file taxi master -f /eval/data.csv \
 	          && pachctl create-pipeline -f /root/preprocess.json \
 	          && pachctl create-pipeline -f /root/train.json"
 
