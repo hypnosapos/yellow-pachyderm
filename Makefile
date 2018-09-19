@@ -100,4 +100,12 @@ tfserving-client: ## Prediction api request to exposed models on TFServing
 	@docker cp k8s-serving-client.yaml $(CONTAINER_NAME):/root/
 	@docker exec -it $(CONTAINER_NAME) \
 	   sh -c "kubectl create -f /root/k8s-serving-client.yaml \
-	          && sleep 10 && kubectl logs -f job/tfserving-client"
+	          && sleep 10 && kubectl logs -f job/tfserving-client \
+	          && kubectl delete -f /root/k8s-serving-client.yaml"
+
+.PHONY: aggregate-data
+aggregate-data: ## Generate a new commit with file aggregation
+	@docker exec -it $(CONTAINER_NAME) \
+	   sh -c "mv /train/data.csv /train/data.csvOrigin \
+	          && tail -n50 /train/data.csvOrigin > /train/data.csv \
+	          && pachctl put-file taxi master -f /train/data.csv"
