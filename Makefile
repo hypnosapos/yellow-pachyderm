@@ -69,10 +69,10 @@ docker-publish: ## Build and publish docker image to be used in pachyderm pipeli
 pachy-pipelines: ## Launch chicago taxis pipelines on pachyderm
 	@docker cp preprocess.json $(CONTAINER_NAME):/root/
 	@docker cp train.json $(CONTAINER_NAME):/root/
-	docker exec $(CONTAINER_NAME) \
+	@docker exec $(CONTAINER_NAME) \
 	   sh -c "pachctl create-repo taxi \
-	          && curl --create-dirs -soL /train/data.csv https://raw.githubusercontent.com/tensorflow/model-analysis/v$(TAXI_VERSION)/examples/chicago_taxi/data/train/data.csv \
-	          && curl --create-dirs -soL /eval/data.csv https://raw.githubusercontent.com/tensorflow/model-analysis/v$(TAXI_VERSION)/examples/chicago_taxi/data/eval/data.csv \
+	          && curl --create-dirs -sL -o /train/data.csv https://raw.githubusercontent.com/tensorflow/model-analysis/v$(TAXI_VERSION)/examples/chicago_taxi/data/train/data.csv \
+	          && curl --create-dirs -sL -o /eval/data.csv https://raw.githubusercontent.com/tensorflow/model-analysis/v$(TAXI_VERSION)/examples/chicago_taxi/data/eval/data.csv \
 	          && pachctl put-file taxi master -f /train/data.csv \
 	          && pachctl put-file taxi master -f /eval/data.csv \
 	          && pachctl create-pipeline -f /root/preprocess.json \
