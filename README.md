@@ -4,7 +4,7 @@
 
 This project is a proof of concept about well known **Chicago taxis** dataset.
 
-The goal is to reproduce the [example of tensorflow](https://github.com/tensorflow/model-analysis/tree/master/examples/chicago_taxi) by using [pachyderm](https://github.com/pachyderm/pachyderm)
+The goal is to reproduce this [example of tensorflow](https://github.com/tensorflow/model-analysis/tree/master/examples/chicago_taxi) by using [pachyderm](https://github.com/pachyderm/pachyderm)
 
 ## Requirements
 
@@ -69,12 +69,12 @@ make tfserving-client
 
 **DoD**: When we put a data.csv file to pachyderm repo a new trained model is got out and ready on tfserving.
 
-This command put a new file with last 50 lines of original data.csv file:
+This command put a new file (new commit on pachyderm) with last 50 lines of original data.csv file:
 ```bash
 make aggregate-data
 ```
 
-This is job statuses after a couple of minutes:
+These are job statuses after a couple of minutes:
 
 ```bash
 ID                               OUTPUT COMMIT                               STARTED        DURATION       RESTART PROGRESS  DL       UL       STATE            
@@ -92,7 +92,7 @@ gs://taxi_chicago/output/train/local_chicago_taxi_output/serving_model_dir/expor
 
 ```
 
-Note how models 1537356456 and 1537356951 are served via TFServing and clients reach them.
+Note how models 1537356456 and 1537356951 (last one is the model for complete dataset, created after the aggregation) are served via TFServing and clients reach them.
 
 TFServing logs:
 
