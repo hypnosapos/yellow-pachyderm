@@ -10,7 +10,7 @@ IMAGE_VERSIONS      ?= 0.1 latest
 STORAGE_SIZE        ?= 10
 BUCKET_NAME         ?= pachyderm-poc
 
-VERSION_PACHYDERM   ?= 1.7.7
+VERSION_PACHYDERM   ?= 1.7.8
 TAXI_VERSION       ?= 0.9.0
 
 .PHONY: help
@@ -95,14 +95,14 @@ tfserving-deploy: ## Deploy TFServing
 	@docker cp k8s-serving.yaml $(CONTAINER_NAME):/root/
 	@docker exec -it $(CONTAINER_NAME) \
 	   sh -c "kubectl create -f /root/k8s-serving.yaml \
-	          && sleep 10 && kubectl logs -f deployment/tfserving-deployment"
+	          && sleep 15 && kubectl logs -f deployment/tfserving-deployment"
 
 .PHONY: tfserving-client
 tfserving-client: ## Prediction api request to exposed models on TFServing
 	@docker cp k8s-serving-client.yaml $(CONTAINER_NAME):/root/
 	@docker exec -it $(CONTAINER_NAME) \
 	   sh -c "kubectl create -f /root/k8s-serving-client.yaml \
-	          && sleep 10 && kubectl logs -f job/tfserving-client \
+	          && sleep 15 && kubectl logs -f job/tfserving-client \
 	          && kubectl delete -f /root/k8s-serving-client.yaml"
 
 .PHONY: aggregate-data

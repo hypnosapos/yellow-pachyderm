@@ -6,6 +6,8 @@ This project is a proof of concept about well known **Chicago taxis** dataset.
 
 The goal is to reproduce the [example of tensorflow](https://github.com/tensorflow/model-analysis/tree/master/examples/chicago_taxi) by using [pachyderm](https://github.com/pachyderm/pachyderm)
 
+![Taxi chicago over pachyderm](taxi_chicago.png)
+
 ## Requirements
 
 - Make (gcc)
@@ -63,7 +65,7 @@ To get predictions:
 make tfserving-client
 ```
 
-## Use case
+## Use cases
 
 ### 1 - File aggregation
 
@@ -77,6 +79,7 @@ make aggregate-data
 This is job statuses after a couple of minutes:
 
 ```bash
+$ docker exec -it gke-bastion bash -c "wait pachctl list-job"
 ID                               OUTPUT COMMIT                               STARTED        DURATION       RESTART PROGRESS  DL       UL       STATE            
 021a2af8e0f04ca2ab33fb2fbf1090eb train/937281c0a74c4759b44cefc4a6f3a638      11 minutes ago 2 minutes      0       1 + 0 / 1 1.129MiB 9.404MiB success 
 fe4d2ad502124b67898394b37cbb658d preprocess/a5f617fccc494a8682fc88660df46511 11 minutes ago 54 seconds     0       1 + 0 / 1 1.837MiB 1.129MiB success 
