@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: vck-taxi-example
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: vck.intelai.org/default-vck-taxi-taxi_train
+            operator: Exists
+  volumes:
+    - name: dataset-claim
+      hostPath:
+        path: /var/datasets/vck-resource-d856ee85-c0fe-11e8-8326-0a580a14000e
+  containers:
+  - image: busybox
+    command: ["/bin/sh", "-c"]
+    args: ["sleep 1d"]
+    name: vck-sleep
+    volumeMounts:
+    - mountPath: /data
+      name: dataset-claim

@@ -1,0 +1,20 @@
+apiVersion: vck.intelai.org/v1alpha1
+kind: VolumeManager
+metadata:
+  name: vck-taxi
+  namespace: default
+spec:
+  volumeConfigs:
+    - id: "taxi_train"
+      replicas: 1
+      sourceType: "Pachyderm"
+      accessMode: "ReadWriteOnce"
+      capacity: 5Gi
+      labels:
+        data: train
+        dataset: taxi
+      options:
+        repo: taxi
+        branch: master
+        inputPath: /train/data.csv
+        outputPath: /data

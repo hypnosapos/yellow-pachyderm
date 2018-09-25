@@ -135,3 +135,16 @@ model_spec {
 }
 ```
 
+## VCK
+
+[VCK](https://github.com/IntelAI/vck) aims indirectly attach polyaxon repos to kubernetes volumes.
+ 
+```bash
+make vck-install
+```
+
+This example shows you how to create a pod with pachyderm taxi repo as local volume:
+```bash
+make vck-example-vol vck-example
+```
+ 

@@ -111,3 +111,27 @@ aggregate-data: ## Generate a new commit with file aggregation
 	   sh -c "mv /train/data.csv /train/data.csvOrigin \
 	          && tail -n50 /train/data.csvOrigin > /train/data.csv \
 	          && pachctl put-file taxi master -f /train/data.csv"
+
+.PHONY: vck-install
+vck-install: ## Install KVC/VCK
+	@docker exec -it $(CONTAINER_NAME) \
+	   sh -c "git clone https://github.com/IntelAI/vck.git \
+	          && helm install vck/helm-charts/kube-volume-controller -n vck --wait --set namespace=default"
+
+.PHONY: vck-example-vol
+vck-example-vol: ## Create a vck volume manager
+	@docker exec -it $(CONTAINER_NAME) \
+	   sh -c "kubectl create -f vck/vck.yaml"
+	@docker exec -it $(CONTAINER_NAME) \
+	   sh -c "until $$(kubectl get volumemanager vck-taxi -o jsonpath='{.status.state}') == 'Running'; do \
+	            echo "Waiting for vck-taxi volume manager ..."; \
+	            sleep 5; \
+	          done"
+
+.PHONY: vck-example
+vck-example: ## Launch a pod whit a pachyderm repo as local volume
+	## kubectl get volumemanager vck-taxi -o jsonpath='{.status.volumes[0].volumeSource.hostPath.path}
+	@docker exec -it $(CONTAINER_NAME) \
+	   sh -c "kubectl create -f vck/vck-example.yaml"
+	@docker exec -it $(CONTAINER_NAME) \
+	   sh -c "kubectl exec -it create -f vck/vck-example.yaml"
