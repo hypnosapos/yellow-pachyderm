@@ -1,11 +1,11 @@
 apiVersion: vck.intelai.org/v1alpha1
 kind: VolumeManager
 metadata:
-  name: vck-taxi
+  name: vck-taxi-vol
   namespace: default
 spec:
   volumeConfigs:
-    - id: "taxi_train"
+    - id: "train"
       replicas: 1
       sourceType: "Pachyderm"
       accessMode: "ReadWriteOnce"

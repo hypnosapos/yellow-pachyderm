@@ -1,19 +1,19 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: vck-taxi-example
+  name: vck-taxi
 spec:
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
         - matchExpressions:
-          - key: vck.intelai.org/default-vck-taxi-taxi_train
+          - key: vck.intelai.org/default-vck-taxi-vol-train
             operator: Exists
   volumes:
     - name: dataset-claim
       hostPath:
-        path: /var/datasets/vck-resource-d856ee85-c0fe-11e8-8326-0a580a14000e
+        path: VCK_HOSTPATH
   containers:
   - image: busybox
     command: ["/bin/sh", "-c"]

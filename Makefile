@@ -118,20 +118,19 @@ vck-install: ## Install KVC/VCK
 	   sh -c "git clone https://github.com/IntelAI/vck.git \
 	          && helm install vck/helm-charts/kube-volume-controller -n vck --wait --set namespace=default"
 
-.PHONY: vck-example-vol
-vck-example-vol: ## Create a vck volume manager
+.PHONY: vck-taxi-vol
+vck-taxi-vol: ## Create a vck volume manager for train directory of pachyderm taxi repo
+	@docker cp vck/vck-taxi-vol.yaml gke-bastion:/vck-taxi-vol.yaml
 	@docker exec -it $(CONTAINER_NAME) \
-	   sh -c "kubectl create -f vck/vck.yaml"
+	   sh -c "kubectl create -f /vck-taxi-vol.yaml"
 	@docker exec -it $(CONTAINER_NAME) \
-	   sh -c "until $$(kubectl get volumemanager vck-taxi -o jsonpath='{.status.state}') == 'Running'; do \
-	            echo "Waiting for vck-taxi volume manager ..."; \
-	            sleep 5; \
-	          done"
+	   sh -c "until [ \"$$(kubectl get volumemanager vck-taxi-vol -o jsonpath='{.status.state}')\" == \"Running\" ]; do \
+	            echo \"Waiting for vck-taxi volume manager ...\"; \
+	            sleep 5; done"
 
-.PHONY: vck-example
-vck-example: ## Launch a pod whit a pachyderm repo as local volume
-	## kubectl get volumemanager vck-taxi -o jsonpath='{.status.volumes[0].volumeSource.hostPath.path}
-	@docker exec -it $(CONTAINER_NAME) \
-	   sh -c "kubectl create -f vck/vck-example.yaml"
-	@docker exec -it $(CONTAINER_NAME) \
-	   sh -c "kubectl exec -it create -f vck/vck-example.yaml"
+.PHONY: vck-taxi
+vck-taxi: ## Launch a pod whit a pachyderm taxi repo as local volume
+	@docker cp vck/vck-taxi.yaml gke-bastion:/vck-taxi.yaml
+	docker exec -it $(CONTAINER_NAME) \
+	   sh -c "sed -i \"s|VCK_HOSTPATH|$$(kubectl get volumemanager vck-taxi-vol -o jsonpath='{.status.volumes[0].volumeSource.hostPath.path}')|g\" /vck-taxi.yaml \
+	          && kubectl create -f /vck-taxi.yaml"
