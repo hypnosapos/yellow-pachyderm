@@ -17,4 +17,4 @@ spec:
         repo: taxi
         branch: master
         inputPath: /train/data.csv
-        outputPath: /data
+        outputPath: data.csv

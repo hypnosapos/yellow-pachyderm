@@ -8,6 +8,7 @@ The goal is to reproduce this [example of tensorflow](https://github.com/tensorf
 
 ![Taxi chicago over pachyderm](taxi_chicago.png)
 
+---
 ## Requirements
 
 - Make (gcc)

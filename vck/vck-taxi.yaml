@@ -17,8 +17,8 @@ spec:
   containers:
   - image: busybox
     command: ["/bin/sh", "-c"]
-    args: ["sleep 1d"]
-    name: vck-sleep
+    args: ["ls -lisah /data/data.csv && head /data/data.csv && sleep 200 && exit 0"]
+    name: vck-taxi
     volumeMounts:
     - mountPath: /data
       name: dataset-claim

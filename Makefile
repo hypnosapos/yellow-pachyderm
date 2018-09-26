@@ -71,7 +71,7 @@ docker-publish: ## Build and publish docker image to be used in pachyderm pipeli
 pachy-pipelines: ## Launch chicago taxis pipelines on pachyderm
 	@docker cp preprocess.json $(CONTAINER_NAME):/root/
 	@docker cp train.json $(CONTAINER_NAME):/root/
-	@docker exec $(CONTAINER_NAME) \
+	@docker exec -it $(CONTAINER_NAME) \
 	   sh -c "pachctl create-repo taxi \
 	          && curl --create-dirs -sL -o /train/data.csv https://raw.githubusercontent.com/tensorflow/model-analysis/v$(TAXI_VERSION)/examples/chicago_taxi/data/train/data.csv \
 	          && curl --create-dirs -sL -o /eval/data.csv https://raw.githubusercontent.com/tensorflow/model-analysis/v$(TAXI_VERSION)/examples/chicago_taxi/data/eval/data.csv \
@@ -123,14 +123,14 @@ vck-taxi-vol: ## Create a vck volume manager for train directory of pachyderm ta
 	@docker cp vck/vck-taxi-vol.yaml gke-bastion:/vck-taxi-vol.yaml
 	@docker exec -it $(CONTAINER_NAME) \
 	   sh -c "kubectl create -f /vck-taxi-vol.yaml"
+
+.PHONY: vck-taxi
+vck-taxi: ## Launch a pod whit a pachyderm taxi repo as local volume
 	@docker exec -it $(CONTAINER_NAME) \
 	   sh -c "until [ \"$$(kubectl get volumemanager vck-taxi-vol -o jsonpath='{.status.state}')\" == \"Running\" ]; do \
 	            echo \"Waiting for vck-taxi volume manager ...\"; \
 	            sleep 5; done"
-
-.PHONY: vck-taxi
-vck-taxi: ## Launch a pod whit a pachyderm taxi repo as local volume
 	@docker cp vck/vck-taxi.yaml gke-bastion:/vck-taxi.yaml
-	docker exec -it $(CONTAINER_NAME) \
+	@docker exec -it $(CONTAINER_NAME) \
 	   sh -c "sed -i \"s|VCK_HOSTPATH|$$(kubectl get volumemanager vck-taxi-vol -o jsonpath='{.status.volumes[0].volumeSource.hostPath.path}')|g\" /vck-taxi.yaml \
 	          && kubectl create -f /vck-taxi.yaml"
